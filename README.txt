@@ -2,6 +2,7 @@ grepfqparser
 
 Rapidly parse fastq format files by inline barcode into separate files in a specified folder.
 
+
 USAGE
 
 python grepfqparser.py <input_fastq> <barcode_file> <output_folder> <gzipped?>
@@ -21,6 +22,8 @@ This parser calls the UNIX command grep (or zgrep) for parsing, hence the name.
 Try the test data supplied with the code as follows
 
 python grepfqparser.py headfastq.gz bc outFolder "Yes"
+
+
 
 David L. Stern Janelia Farm Research Campus 1 June 2013
 
