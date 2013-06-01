@@ -22,3 +22,9 @@ Try the test data supplied with the code as follows
 
 python grepfqparser.py headfastq.gz bc outFolder "Yes"
 
+David L. Stern Janelia Farm Research Campus 1 June 2013
+
+Copyright 2013 Howard Hughes Medical Institute.
+All rights reserved.
+Use is subject to Janelia Farm Research Campus Software Copyright 1.1
+license terms ( http://license.janelia.org/license/jfrc_copyright_1_1.html ).
