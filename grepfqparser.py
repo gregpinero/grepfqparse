@@ -54,7 +54,7 @@ def main():
                         print __doc__
                         sys.exit(0)
         if len(arg) < 3:
-                print "\nUsage: python grepfqparser.py <input_fastq> <barcode_file> <output_folder> <gzipped?> <ignore_case?>\m"                
+                print "\nUsage: python grepfqparser.py <input_fastq> <barcode_file> <output_folder>\m"                
                 sys.exit(0)
         #process arguments
 
