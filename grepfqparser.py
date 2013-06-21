@@ -10,14 +10,17 @@ Python 2.7
 
 USAGE
 
-python grepfqparser.py <input_fastq> <barcode_file> <output_folder> <gzipped?>
+python grepfqparser.py <input_fastq> <barcode_file> <output_folder>
 
-<gzipped?> ("yes", "no") is optional (default = "yes")
 
 e.g.
 
-python grepfqparser.py test.fq bc.txt parsed_files yes
+python grepfqparser.py test.fq bc.txt parsed_files
 
+
+gzipped files will be detected automatically (by .gz suffix) and gunzipped prior to parsing.
+This is much faster than parsing on the gzipped files.
+The gunzipped file is deleted after parsing.
 
 David L. Stern
 Janelia Farm Research Campus
@@ -68,12 +71,28 @@ def main():
         if os.path.isdir(OutFolder):
                 print "Directory %s exists" %(OutFolder)
         else:
-               os.mkdir(OutFolder)
+                os.mkdir(OutFolder)
         
         print "fastq file = %s" %(fqFile)
         print "barcode file = %s" %(bcFile)
         print "Folder of parsed sequences = %s" %(OutFolder)
+        
+        y = fqFile.split('.')
+        if y[-1] == 'gz':
+                gzbool  = "YES"
+        else:
+                gzbool  = "NO"
+                
         print "fq file gzipped? = %s" %(gzbool)        
+        if gzbool == "YES":
+                print "unzipping file"
+                tempfq = open("tempfq",'w')
+                errlog = open("errlog1",'w')
+                cmd = 'gunzip -c %s' % (fqFile)
+                subprocess.check_call(cmd,shell=True,stdout=tempfq,stderr=errlog)
+                fqFile = "tempfq"
+                tempfq.close()
+                errlog.close()
 
         bc = open(bcFile,'r')
         for line in bc:
@@ -83,21 +102,55 @@ def main():
                 name = lineItems[1]
                 print barcode
                 
-                if gzbool == "YES":
-                                procBC = subprocess.Popen(["zgrep", "-B 1", "-A 2", "^" + barcode_up, fqFile], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                        
-                else:
-                                procBC = subprocess.Popen(["grep", "-B 1", "-A 2", "^" + barcode_up, fqFile], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                                
-                procStrip = subprocess.Popen(["grep", "-v", "^--"],stdin=procBC.stdout,stdout=subprocess.PIPE)
-                procBC.stdout.close()
-                #proc = subprocess.Popen(["samtools", "flagstat", indiv + ".bam"], 0, None, subprocess.PIPE, subprocess.PIPE,None)
-                output_file = open(OutFolder + "/indiv" + name + "_" + barcode,'w')                        
-                for l in procStrip.stdout.readlines():
-                       output_file.write(l)                        
-                output_file.close()
+                parsed_file_step1_name = str(OutFolder + "/indiv" + name + "_" + barcode + "firstgrep")
+                parsed_file_step1 = open(parsed_file_step1_name,'w') 
+                errlog = open("errlog2",'w')
+                cmd = 'grep -B 1 -A 2 ^%s %s' % (barcode_up, fqFile)
+                subprocess.check_call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
+                errlog.close()
+                parsed_file_step1.close()
+                
+                """grep with -B and -A produces spacer marks '--' in file. Cannot figure out how to suppress these, 
+                so remove and paste into new file, then delete original"""
+                
+                parsed_file_name = str(OutFolder + "/indiv" + name + "_" + barcode)
+                parsed_file = open(parsed_file_name,'w')
+                errlog = open("errlog3",'w')
+                cmd = 'awk "!/^--$/" %s' % (parsed_file_step1_name)
+                subprocess.check_call(cmd,shell=True,stdout=parsed_file,stderr=errlog)
+                errlog.close()
+                parsed_file.close()
+                cmd = 'rm %s' % (parsed_file_step1_name)
+                subprocess.check_call(cmd,shell=True)
         
-
+        bc.close()
   
+        """Now collect all unparsed reads"""
+        bc = open(bcFile,'r')
+        allbc = []
+        for line in bc:
+                lineItems = line.split()
+                barcode = lineItems[0]                
+                allbc.append(barcode.upper())
+        bc.close()
+        
+        """save barcodes in new file -- bconly -- with caret at front, use this as search file"""
+        output_bc_file = open("bcOnly",'w')
+        for line in allbc:
+                output_bc_file.write("^" + line + "\n")
+        output_bc_file.close()
+        bconly  = "bcOnly"
+        nomatch_file = open(OutFolder + "/nomatches",'w')
+        errlog = open("errlog4",'w')
+        cmd = "awk 'NR%%4==2' %s | grep -f %s -v" % (fqFile, bconly)
+        nomatch = subprocess.check_call(cmd, shell=True, stdout=nomatch_file,stderr=errlog)
+        errlog.close()
+        nomatch_file.close()
+        
+        """delete tempfq, the gunzipped original file"""
+        cmd = 'rm tempfq bcOnly errlog1 errlog2 errlog3 errlog4'
+        subprocess.check_call(cmd,shell=True)
+        
+        
 if __name__ == "__main__":
         sys.exit(main())
