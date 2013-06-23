@@ -7,7 +7,10 @@ USAGE
 
 python grepfqparser.py <input_fastq> <barcode_file> <output_folder> 
 
-I wrote this utility because I couldn't find a parser that could easily handle barcodes of different lengths. This parser will handle barcodes of any length, but it is most useful for long, variable length barcodes.  This parser allows no mismatches, on the assumption that problems in the barcode are often indicative of problems with the whole read. Note that this parser looks for the barcode starting from the first base of the sequence read. Unparsed reads are saved in a separate file called nomatches.
+This is a fast inine parser that will parse fastq files with barcodes of variable lengths. 
+This parser allows no mismatches, on the assumption that problems in the barcode are often 
+indicative of problems with the whole read. The parser looks for the barcode starting from 
+the first base of the sequence read. Unparsed reads are saved in a separate file called nomatches.
 
 The parser runs on gzipped or unzipped files.
 
