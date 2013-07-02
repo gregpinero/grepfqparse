@@ -105,8 +105,14 @@ def main():
                 parsed_file_step1_name = str(OutFolder + "/indiv" + name + "_" + barcode + "firstgrep")
                 parsed_file_step1 = open(parsed_file_step1_name,'w') 
                 errlog = open("errlog2",'w')
+<<<<<<< HEAD
                 cmd = 'grep -B 1 -A 2 ^%s %s' % (barcode_up, fqFile)
                 subprocess.call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
+=======
+                #(note: pipe into sed to remove barcodes and associated quality scores from each line)
+                cmd = "grep -B 1 -A 2 ^%s %s | sed '2~2s/^%s//g'" % (barcode_up, fqFile, '.'*len(barcode_up))
+                subprocess.check_call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
+>>>>>>> Update grepfqparser.py
                 errlog.close()
                 parsed_file_step1.close()
                 
