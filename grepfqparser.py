@@ -109,7 +109,7 @@ def main():
                 subprocess.call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
                 #(note: pipe into sed to remove barcodes and associated quality scores from each line)
                 cmd = "grep -B 1 -A 2 ^%s %s | sed '2~2s/^%s//g'" % (barcode_up, fqFile, '.'*len(barcode_up))
-                subprocess.check_call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
+                subprocess.call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
                 errlog.close()
                 parsed_file_step1.close()
                 
