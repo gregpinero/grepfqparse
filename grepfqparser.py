@@ -43,13 +43,17 @@ import subprocess
 def main():
         #parse command line options
         try:
-                opts, arg = getopt.getopt(sys.argv[1:],"h", ["help"])
+                opts, arg = getopt.getopt(sys.argv[1:],"ht:", ["help"])
         except getopt.error, msg:
                 print msg
                 print "for help use --help"
                 sys.exit(2)
         # process options
+        offset = 0
         for o, a in opts:
+                if o == '-t':
+                        offset = int(a)
+                        print "Using offset", offset
                 if o in ("-h", "--help"):
                         print __doc__
                         sys.exit(0)
@@ -108,7 +112,7 @@ def main():
                 cmd = 'grep -B 1 -A 2 ^%s %s' % (barcode_up, fqFile)
                 subprocess.call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
                 #(note: pipe into sed to remove barcodes and associated quality scores from each line)
-                cmd = "grep -B 1 -A 2 ^%s %s | sed '2~2s/^%s//g'" % (barcode_up, fqFile, '.'*len(barcode_up))
+                cmd = "grep -B 1 -A 2 ^%s %s | sed '2~2s/^%s//g'" % (barcode_up, fqFile, '.'*(len(barcode_up)+offset))
                 subprocess.call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
                 errlog.close()
                 parsed_file_step1.close()
