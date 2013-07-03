@@ -106,7 +106,7 @@ def main():
                 parsed_file_step1 = open(parsed_file_step1_name,'w') 
                 errlog = open("errlog2",'w')
                 cmd = 'grep -B 1 -A 2 ^%s %s' % (barcode_up, fqFile)
-                subprocess.check_call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
+                subprocess.call(cmd, shell=True,stdout=parsed_file_step1, stderr=errlog)
                 errlog.close()
                 parsed_file_step1.close()
                 
@@ -143,13 +143,13 @@ def main():
         nomatch_file = open(OutFolder + "/nomatches",'w')
         errlog = open("errlog4",'w')
         cmd = "awk 'NR%%4==2' %s | grep -f %s -v" % (fqFile, bconly)
-        nomatch = subprocess.check_call(cmd, shell=True, stdout=nomatch_file,stderr=errlog)
+        nomatch = subprocess.call(cmd, shell=True, stdout=nomatch_file,stderr=errlog)
         errlog.close()
         nomatch_file.close()
         
         """delete tempfq, the gunzipped original file"""
         cmd = 'rm tempfq bcOnly errlog1 errlog2 errlog3 errlog4'
-        subprocess.check_call(cmd,shell=True)
+        subprocess.call(cmd,shell=True)
         
         
 if __name__ == "__main__":
